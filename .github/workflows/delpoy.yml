@@ -3,6 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -19,14 +20,14 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          if [ ! -d "cloud-task-engine" ]; then
-            git clone https://github.com/${{ github.repository }}.git cloud-task-engine
+          if [ ! -d "Asynchronous-Task-Processing" ]; then
+            git clone https://github.com/${{ github.repository }}.git Asynchronous-Task-Processing
           fi
-          cd cloud-task-engine
+          cd Asynchronous-Task-Processing
           git pull origin main
           echo "AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }}" > .env
           echo "SQS_QUEUE_URL=${{ secrets.SQS_QUEUE_URL }}" >> .env
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
-          docker-compose down
-          docker-compose up -d --build
+          docker compose down || docker-compose down || true
+          docker compose up -d --build || docker-compose up -d --build
